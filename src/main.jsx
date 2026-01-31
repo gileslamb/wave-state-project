@@ -1,10 +1,7 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.jsx'
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+// StrictMode disabled: it double-mounts components in dev, causing R3F Canvas
+// to create → dispose → create, which triggers WebGL context loss on the first instance.
+createRoot(document.getElementById('root')).render(<App />)
