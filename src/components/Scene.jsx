@@ -1,31 +1,32 @@
 import { useCallback, useState, useMemo, useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { OrbitControls, Environment, AdaptiveDpr, AdaptiveEvents, Sparkles } from '@react-three/drei'
+import { AdaptiveDpr, AdaptiveEvents } from '@react-three/drei'
+import { useAudio } from '../contexts/AudioContext'
 import { checkWebGLAvailability } from '../utils/webgl'
 import WebGLErrorBoundary from './WebGLErrorBoundary'
 import WebGLFallback from './WebGLFallback'
-import WaveVisual from './WaveVisual'
+import CosmologyScene from './CosmologyScene'
 
 const sceneConfig = {
-  camera: { position: [0, 2, 8], fov: 50, near: 0.1, far: 1000 },
+  camera: { position: [0, 0, 55], fov: 50, near: 0.1, far: 2000 },
   gl: {
     antialias: true,
     alpha: false,
     powerPreference: 'high-performance',
     stencil: false,
     depth: true,
-    failIfMajorPerformanceCaveat: false, // allow software renderer fallback
+    failIfMajorPerformanceCaveat: false,
   },
   dpr: [1, 2],
   frameloop: 'always',
   flat: false,
   linear: false,
-  xr: undefined, // WebXR session — set when @react-three/xr is added
 }
 
 export default function Scene() {
   const [contextLost, setContextLost] = useState(false)
   const [retryKey, setRetryKey] = useState(0)
+  const { getFFT, getLevel } = useAudio()
 
   useEffect(() => {
     console.log('[Scene] Component mounted')
@@ -44,7 +45,7 @@ export default function Scene() {
 
   const handleCreated = useCallback(({ gl }) => {
     console.log('[WebGL] Canvas created successfully')
-    gl.setClearColor('#030712')
+    gl.setClearColor(0x000000)
     const canvas = gl.domElement
 
     const onContextLost = (e) => {
@@ -68,7 +69,6 @@ export default function Scene() {
       canvas.removeEventListener('webglcontextlost', onContextLost)
       canvas.removeEventListener('webglcontextrestored', onContextRestored)
     }
-    // Note: R3F handles renderer disposal on Canvas unmount via unmountComponentAtNode
   }, [])
 
   const handleRetry = useCallback(() => {
@@ -95,53 +95,24 @@ export default function Scene() {
       key={retryKey}
       fallback={<WebGLFallback onRetry={handleRetry} />}
     >
-    <Canvas
-      key={retryKey}
-      camera={sceneConfig.camera}
-      gl={sceneConfig.gl}
-      dpr={sceneConfig.dpr}
-      frameloop={sceneConfig.frameloop}
-      flat={sceneConfig.flat}
-      linear={sceneConfig.linear}
-      style={{ width: '100%', height: '100%', display: 'block' }}
-      onCreated={handleCreated}
-    >
-      <color attach="background" args={['#030712']} />
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[5, 10, 5]} intensity={0.8} />
-      <pointLight position={[-8, 6, 4]} intensity={0.6} color="#00d4ff" distance={30} decay={2} />
-      <pointLight position={[8, 4, -4]} intensity={0.4} color="#7b2cbf" distance={25} decay={2} />
-      <pointLight position={[0, 2, 8]} intensity={0.5} color="#06b6d4" distance={20} decay={2} />
-      <pointLight position={[0, -1, 2]} intensity={0.25} color="#0d9488" />
+      <Canvas
+        key={retryKey}
+        camera={sceneConfig.camera}
+        gl={sceneConfig.gl}
+        dpr={sceneConfig.dpr}
+        frameloop={sceneConfig.frameloop}
+        flat={sceneConfig.flat}
+        linear={sceneConfig.linear}
+        style={{ width: '100%', height: '100%', display: 'block' }}
+        onCreated={handleCreated}
+      >
+        <color attach="background" args={['#000000']} />
 
-      <WaveVisual />
+        <CosmologyScene getFFT={getFFT} getLevel={getLevel} />
 
-      <Sparkles
-        count={80}
-        scale={18}
-        size={2}
-        speed={0.4}
-        color="#00e5ff"
-        opacity={0.6}
-        noise={[0.5, 0.5, 0.5]}
-        position={[0, 0.5, 0]}
-      />
-
-      <OrbitControls
-        enablePan={false}
-        minPolarAngle={Math.PI * 0.2}
-        maxPolarAngle={Math.PI * 0.45}
-        minDistance={4}
-        maxDistance={20}
-        enableDamping
-        dampingFactor={0.05}
-        rotateSpeed={0.4}
-      />
-
-      <Environment preset="night" environmentIntensity={0.35} />
-      <AdaptiveDpr pixelated />
-      <AdaptiveEvents />
-    </Canvas>
+        <AdaptiveDpr pixelated />
+        <AdaptiveEvents />
+      </Canvas>
     </WebGLErrorBoundary>
   )
 }

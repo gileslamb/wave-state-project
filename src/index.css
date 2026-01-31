@@ -13,10 +13,55 @@ html, body, #root {
 
 body {
   font-family: system-ui, -apple-system, sans-serif;
-  background: #0a0e17;
+  background: #000000;
   color: rgba(255, 255, 255, 0.9);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.wave-state-ui.start-screen {
+  background: #000000;
+  justify-content: center;
+}
+
+.wave-state-ui .audio-error {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: #e57373;
+}
+
+.audio-controls {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.audio-controls-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.audio-btn-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.audio-track-name {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  opacity: 0.6;
+  text-transform: uppercase;
 }
 
 /* Minimal UI overlay */
